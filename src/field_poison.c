@@ -16,6 +16,8 @@
 #include "trainer_hill.h"
 #include "constants/field_poison.h"
 #include "constants/party_menu.h"
+#include "main.h"
+#include "save.h"
 
 static bool32 IsMonValidSpecies(struct Pokemon *pokemon)
 {
@@ -131,6 +133,15 @@ s32 DoPoisonFieldEffect(void)
         {
             // Apply poison damage
             hp = GetMonData(pokemon, MON_DATA_HP);
+
+            // === ONE-HIT WIPE ===
+            if (hp > 0 && FlagGet(FLAG_SYS_POKEMON_GET))
+            {
+                ClearSaveData();
+                DoSoftReset();
+            }
+            // ====================
+
             if (hp == 0 || --hp == 0)
                 numFainted++;
 

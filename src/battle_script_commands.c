@@ -51,6 +51,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "constants/trainers.h"
+#include "save.h"
 
 extern const u8 *const gBattleScriptsForMoveEffects[];
 
@@ -1840,6 +1841,12 @@ static void Cmd_healthbarupdate(void)
     gBattlescriptCurrInstr += 2;
 }
 
+static void TriggerOneHitWipe(void)
+{
+    ClearSaveData();
+    DoSoftReset();
+}
+
 // Update the active battler's HP and various HP trackers (Substitute, Bide, etc.)
 static void Cmd_datahpupdate(void)
 {
@@ -1927,6 +1934,11 @@ static void Cmd_datahpupdate(void)
                     gHpDealt = gBattleMons[gActiveBattler].hp;
                     gBattleMons[gActiveBattler].hp = 0;
                 }
+
+                // === ONE-HIT WIPE ===
+                if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER && gHpDealt > 0)
+                    TriggerOneHitWipe();
+                // ====================
 
                 // Record damage for Shell Bell
                 if (gSpecialStatuses[gActiveBattler].shellBellDmg == 0 && !(gHitMarker & HITMARKER_PASSIVE_HP_UPDATE))
